@@ -16,9 +16,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ColoredPowerPowertips {
-    private static final String BUFF_TEXT = "@gkB@";
-    private static final String DEBUFF_TEXT = "@gkD@";
-    private static final Color BUFF_GREEN = new Color((float) 106 / 255.0F, (float) 206 / 255.0F, (float) 125 / 255.0F, (float) 255 / 255.0F);
+    private static final String BUFF_TEXT = "\u200D";
+    private static final String DEBUFF_TEXT = "\u200B";
+    private static final int TEXT_LENGTH = BUFF_TEXT.length();
+    public static Color BUFF_COL = new Color((float) 106 / 255.0F, (float) 206 / 255.0F, (float) 125 / 255.0F, (float) 255 / 255.0F);
+    public static Color DEBUFF_COL = new Color(Color.SALMON);
     private static final HashMap<String, Integer> powerMap = new HashMap<>(); //1 = Buff, 2 = Debuff
 
     @SpirePatch(
@@ -26,14 +28,14 @@ public class ColoredPowerPowertips {
             method = "renderTipBox"
     )
     public static class ColorChanger {
-        @SpireInsertPatch(locator = Locator.class, localvars = {"title"})
-        public static void patch(float x, float y, SpriteBatch sb, String titl, String description, @ByRef String[] title) {
-            if (title[0].startsWith(BUFF_TEXT)) {
-                title[0] = title[0].substring(5);
-                sb.setColor(BUFF_GREEN);
-            } else if (title[0].startsWith(DEBUFF_TEXT)) {
-                title[0] = title[0].substring(5);
-                sb.setColor(Color.SALMON);
+        @SpireInsertPatch(locator = Locator.class, localvars = {"description"})
+        public static void patch(float x, float y, SpriteBatch sb, String titl, String descriptio, @ByRef String[] description) {
+            if (description[0].startsWith(BUFF_TEXT)) {
+                description[0] = description[0].substring(TEXT_LENGTH);
+                sb.setColor(BUFF_COL);
+            } else if (description[0].startsWith(DEBUFF_TEXT)) {
+                description[0] = description[0].substring(TEXT_LENGTH);
+                sb.setColor(DEBUFF_COL);
             }
         }
 
@@ -55,9 +57,9 @@ public class ColoredPowerPowertips {
                 if (pT.header != null) {
                     i = getType(__instance, pT.header);
                     if (i == 1) {
-                        pT.header = BUFF_TEXT + pT.header;
+                        pT.body = BUFF_TEXT + pT.body;
                     } else if (i == 2) {
-                        pT.header = DEBUFF_TEXT + pT.header;
+                        pT.body = DEBUFF_TEXT + pT.body;
                     }
                 }
             }
