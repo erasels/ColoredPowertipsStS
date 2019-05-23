@@ -6,7 +6,7 @@
     <groupId>coloredPowertips</groupId>
     <artifactId>coloredPowertips</artifactId>
     <name>Colored Powertips</name>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
     <description>Colors powertips depending on if they belong to a buff or debuff.</description>
 
     <properties>

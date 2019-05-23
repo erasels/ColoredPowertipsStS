@@ -19,8 +19,8 @@ public class ColoredPowerPowertips {
     private static final String BUFF_TEXT = "\u200D";
     private static final String DEBUFF_TEXT = "\u200B";
     private static final int TEXT_LENGTH = BUFF_TEXT.length();
-    public static Color BUFF_COL = new Color((float) 106 / 255.0F, (float) 206 / 255.0F, (float) 125 / 255.0F, (float) 255 / 255.0F);
-    public static Color DEBUFF_COL = new Color(Color.SALMON);
+    public static Color BUFF_COL;
+    public static Color DEBUFF_COL;
     private static final HashMap<String, Integer> powerMap = new HashMap<>(); //1 = Buff, 2 = Debuff
 
     @SpirePatch(
@@ -30,12 +30,14 @@ public class ColoredPowerPowertips {
     public static class ColorChanger {
         @SpireInsertPatch(locator = Locator.class, localvars = {"description"})
         public static void patch(float x, float y, SpriteBatch sb, String titl, String descriptio, @ByRef String[] description) {
-            if (description[0].startsWith(BUFF_TEXT)) {
-                description[0] = description[0].substring(TEXT_LENGTH);
-                sb.setColor(BUFF_COL);
-            } else if (description[0].startsWith(DEBUFF_TEXT)) {
-                description[0] = description[0].substring(TEXT_LENGTH);
-                sb.setColor(DEBUFF_COL);
+            if (description[0] != null) {
+                if (description[0].startsWith(BUFF_TEXT)) {
+                    description[0] = description[0].substring(TEXT_LENGTH);
+                    sb.setColor(BUFF_COL);
+                } else if (description[0].startsWith(DEBUFF_TEXT)) {
+                    description[0] = description[0].substring(TEXT_LENGTH);
+                    sb.setColor(DEBUFF_COL);
+                }
             }
         }
 
@@ -71,6 +73,7 @@ public class ColoredPowerPowertips {
                 return LineFinder.findInOrder(ctMethodToPatch, new ArrayList<>(), finalMatcher);
             }
         }
+
     }
 
     private static int getType(AbstractCreature t, String name) {
