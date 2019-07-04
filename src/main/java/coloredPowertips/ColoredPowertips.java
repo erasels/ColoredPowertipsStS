@@ -1,21 +1,20 @@
 package coloredPowertips;
 
-import basemod.*;
-import basemod.interfaces.*;
-
+import basemod.BaseMod;
+import basemod.ModLabel;
+import basemod.ModLabeledToggleButton;
+import basemod.ModPanel;
+import basemod.interfaces.PostInitializeSubscriber;
+import basemod.interfaces.StartGameSubscriber;
 import coloredPowertips.patches.ColoredPowerPowertips;
 import com.badlogic.gdx.graphics.Color;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
-import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
-import com.megacrit.cardcrawl.localization.UIStrings;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Properties;
 
 @SpireInitializer
@@ -80,6 +79,21 @@ public class ColoredPowertips implements PostInitializeSubscriber, StartGameSubs
                 });
         settingsPanel.addUIElement(BOBtn);
 
+        ModLabeledToggleButton PYBtn = new ModLabeledToggleButton("Purple/Yellow", 350, 550, Settings.PURPLE_COLOR, FontHelper.charDescFont, colorChoice() == 2, settingsPanel, l -> {
+        },
+                button ->
+                {
+                    if (modConfig != null) {
+                        modConfig.setInt("color", 2);
+                        try {
+                            modConfig.save();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+        settingsPanel.addUIElement(PYBtn);
+
         BaseMod.registerModBadge(ImageMaster.loadImage("ColoredPowertipsResources/img/modBadge.png"), "ColoredPowertips", "erasels", "TODO", settingsPanel);
     }
 
@@ -88,7 +102,11 @@ public class ColoredPowertips implements PostInitializeSubscriber, StartGameSubs
         switch (colorChoice()) {
             case 1:
                 ColoredPowerPowertips.BUFF_COL = new Color(Color.SKY.cpy());
-                ColoredPowerPowertips.DEBUFF_COL = new Color((float) 244 / 255.0F, (float) 162 / 255.0F, (float) 85 / 255.0F, (float) 255 / 255.0F);
+                ColoredPowerPowertips.DEBUFF_COL = new Color((float) 255 / 255.0F, (float) 130 / 255.0F, (float) 30 / 255.0F, (float) 255 / 255.0F);
+                break;
+            case 2:
+                ColoredPowerPowertips.BUFF_COL = new Color((float) 133 / 255.0F, (float) 51 / 255.0F, (float) 255 / 255.0F, (float) 255 / 255.0F);
+                ColoredPowerPowertips.DEBUFF_COL = new Color((float) 230 / 255.0F, (float) 200 / 255.0F, (float) 1 / 255.0F, (float) 255 / 255.0F);
                 break;
             default:
                 ColoredPowerPowertips.BUFF_COL = new Color((float) 106 / 255.0F, (float) 206 / 255.0F, (float) 125 / 255.0F, (float) 255 / 255.0F);
