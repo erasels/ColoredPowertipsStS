@@ -2,17 +2,21 @@ package coloredPowertips.patches;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.helpers.PowerTip;
 import com.megacrit.cardcrawl.helpers.TipHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.powers.AbstractPower;
-import javassist.CannotCompileException;
-import javassist.CtBehavior;
+import javassist.*;
+import javassist.expr.ExprEditor;
+import javassist.expr.FieldAccess;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class ColoredPowerPowertips {
@@ -57,11 +61,26 @@ public class ColoredPowerPowertips {
             int i;
             for (PowerTip pT : tips[0]) {
                 if (pT.header != null) {
-                    i = getType(__instance, pT.header);
+                    try {
+                        i = getTypeHyperBrain(__instance, pT.header);
+                    } catch (Exception e) {
+                        i = getType(getPowerByName(__instance, pT.header));
+                        e.printStackTrace();
+                    }
+
                     if (i == 1) {
                         pT.body = BUFF_TEXT + pT.body;
                     } else if (i == 2) {
                         pT.body = DEBUFF_TEXT + pT.body;
+                    } else if (i == 3) {
+                        AbstractPower p = getPowerByName(__instance, pT.header);
+                        if (p != null) {
+                            if (p.type == AbstractPower.PowerType.BUFF) {
+                                pT.body = BUFF_TEXT + pT.body;
+                            } else {
+                                pT.body = DEBUFF_TEXT + pT.body;
+                            }
+                        }
                     }
                 }
             }
@@ -76,18 +95,59 @@ public class ColoredPowerPowertips {
 
     }
 
-    private static int getType(AbstractCreature t, String name) {
+    private static int getType(AbstractPower p) {
+        if (p != null) {
+            if (powerMap.containsKey(p.name)) {
+                return powerMap.get(p.name);
+            }
+
+            int i = p.type == AbstractPower.PowerType.BUFF ? 1 : 2;
+            powerMap.put(p.name, i);
+            return i;
+        }
+        return 0; // error code
+    }
+
+    private static int pTypesWrites = 0;
+
+    private static int getTypeHyperBrain(AbstractCreature t, String name) throws NotFoundException, CannotCompileException {
         if (powerMap.containsKey(name)) {
             return powerMap.get(name);
         }
         AbstractPower p = getPowerByName(t, name);
         if (p != null) {
-            int i = p.type == AbstractPower.PowerType.BUFF ? 1 : 2;
+            pTypesWrites = 0;
+
+            ClassPool pool = Loader.getClassPool();
+            CtClass ctClass = pool.get(p.getClass().getName());
+
+            do {
+                ctClass.instrument(new ExprEditor() {
+                    @Override
+                    public void edit(FieldAccess f) {
+
+                        if (f.getFieldName().equals("type") && f.isWriter()) {
+                            pTypesWrites++;
+                        }
+
+                    }
+                });
+                ctClass = ctClass.getSuperclass();
+            } while (!ctClass.getName().equals(AbstractPower.class.getName()));
+
+            int i;
+            if (pTypesWrites < 2) {
+                i = getType(p);
+            } else {
+                i = 3;
+            }
+
             powerMap.put(name, i);
             return i;
         }
         return 0; // error code
     }
+
 
     private static AbstractPower getPowerByName(AbstractCreature t, String name) {
         for (AbstractPower p : t.powers) {
