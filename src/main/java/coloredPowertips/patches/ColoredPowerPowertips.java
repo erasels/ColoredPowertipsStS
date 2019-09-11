@@ -6,6 +6,7 @@ import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.helpers.PowerTip;
 import com.megacrit.cardcrawl.helpers.TipHelper;
@@ -55,6 +56,7 @@ public class ColoredPowerPowertips {
 
     @SpirePatch(clz = AbstractMonster.class, method = "renderTip")
     @SpirePatch(clz = AbstractCreature.class, method = "renderPowerTips")
+    @SpirePatch(clz = AbstractPlayer.class, method = "renderPowerTips")
     public static class ManipulateTitles {
         @SpireInsertPatch(locator = Locator.class, localvars = {"tips"})
         public static void Insert(AbstractCreature __instance, SpriteBatch sb, @ByRef ArrayList<PowerTip>[] tips) {
@@ -145,6 +147,7 @@ public class ColoredPowerPowertips {
             powerMap.put(name, i);
             return i;
         }
+        powerMap.put(name, 0);
         return 0; // error code
     }
 
