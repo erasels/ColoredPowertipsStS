@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
-import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.helpers.PowerTip;
@@ -17,7 +16,6 @@ import javassist.expr.ExprEditor;
 import javassist.expr.FieldAccess;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class ColoredPowerPowertips {
@@ -103,7 +101,18 @@ public class ColoredPowerPowertips {
                 return powerMap.get(p.name);
             }
 
-            int i = p.type == AbstractPower.PowerType.BUFF ? 1 : 2;
+            int i;
+            switch(p.type) {
+                case BUFF:
+                    i = 1;
+                    break;
+                case DEBUFF:
+                    i = 2;
+                    break;
+                default:
+                    //Don't highlight, outside of system
+                    i = 0;
+            }
             powerMap.put(p.name, i);
             return i;
         }
